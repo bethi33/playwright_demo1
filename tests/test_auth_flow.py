@@ -13,30 +13,30 @@ def test_valid_login(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_PATH)
     login_page.login("sssdjsd@gmail.com", "123456")
-    
+
     expect(page).to_have_title("My Account")
 
 def test_invalid_login(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_PATH)
     login_page.login("wronguser@example.com", "wrongpassword")
-    
+
     expect(page.locator(".alert-danger")).to_be_visible()
 
 def test_user_registration(page: Page):
     home_page = HomePage(page)
     register_page = RegisterPage(page)
-    
+
     page.goto(HOME_PATH)
     home_page.navigate_to_registration()
-    
+
     first_name = fake.first_name()
     last_name = fake.last_name()
     email = fake.email()
     telephone = fake.phone_number()
     password = "Password123!"
-    
+
     register_page.register_user(first_name, last_name, email, telephone, password)
-    
+
     expect(page).to_have_title("Your Account Has Been Created!")
     expect(page.get_by_text("Your Account Has Been Created!")).to_be_visible()

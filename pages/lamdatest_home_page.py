@@ -19,6 +19,3 @@ class HomePage:
         logger.info("Navigating to registration page")
         self.my_account_link.hover()
         self.register_link.click()
-
-
-

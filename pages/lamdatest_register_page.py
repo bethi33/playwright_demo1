@@ -15,7 +15,7 @@ class RegisterPage:
         self.confirm_password_input = page.get_by_placeholder("Password Confirm")
         self.privacy_policy_checkbox = page.get_by_label("I have read and agree to the Privacy Policy")
         self.continue_button = page.get_by_role("button", name="Continue")
-        
+
     def register_user(self, first_name, last_name, email, telephone, password):
         logger.info(f"Registering user: {email}")
         self.first_name_input.fill(first_name)
@@ -34,4 +34,3 @@ class RegisterPage:
         logger.info("Checked privacy policy checkbox")
         self.continue_button.click()
         logger.info("Clicked continue button")
-

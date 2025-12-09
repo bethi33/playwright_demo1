@@ -42,7 +42,7 @@ def test_invalid_password(page: Page):
 def test_invalid_email(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.login(INVALID_EMAIL, VALID_PASSWORD)
 
     expect(login_page.get_alert_message()).to_be_visible()
@@ -52,7 +52,7 @@ def test_forgot_password_link_visible(page: Page):
     """Test forgot password link is visible on login page"""
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     assert login_page.is_forgot_password_link_visible(), "Forgot password link should be visible"
 
 
@@ -60,14 +60,14 @@ def test_login_with_empty_credentials(page: Page):
     """Test login with empty email and password"""
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.click_login()
-    # Most websites require field validation
+
     expect(login_page.username_input).to_be_focused()
 def test_empty_email_and_password(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.click_login()
 
     expect(login_page.get_alert_message()).to_be_visible()
@@ -76,7 +76,7 @@ def test_empty_email_and_password(page: Page):
 def test_empty_email(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.enter_password(VALID_PASSWORD)
     login_page.click_login()
 
@@ -86,7 +86,7 @@ def test_empty_email(page: Page):
 def test_empty_password(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.enter_username(VALID_EMAIL)
     login_page.click_login()
 
@@ -110,8 +110,8 @@ def test_forgot_password_link_visible(page: Page):
 def test_logout_after_login(page: Page):
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
-    
+
     login_page.login(VALID_EMAIL, VALID_PASSWORD)
-    
+
     login_page.click_logout()
     expect(page).to_have_url(f"{BASE_URL}?route=account/logout")

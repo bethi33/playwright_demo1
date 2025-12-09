@@ -41,13 +41,13 @@ def check_required_packages():
     print("🔍 Checking required packages...", end=" ")
     required = ['pytest', 'playwright', 'faker']
     missing = []
-    
+
     for package in required:
         try:
             __import__(package)
         except ImportError:
             missing.append(package)
-    
+
     if not missing:
         print("✅ All packages installed")
         return True
@@ -84,11 +84,11 @@ def check_project_structure():
     print("🔍 Checking project structure...", end=" ")
     required_dirs = ['tests', 'pages', 'utils', 'reports']
     missing_dirs = []
-    
+
     for dir_name in required_dirs:
         if not Path(dir_name).exists():
             missing_dirs.append(dir_name)
-    
+
     if not missing_dirs:
         print("✅ All directories exist")
         return True
@@ -108,11 +108,11 @@ def check_required_files():
         'README.md'
     ]
     missing_files = []
-    
+
     for file_name in required_files:
         if not Path(file_name).exists():
             missing_files.append(file_name)
-    
+
     if not missing_files:
         print("✅ All files exist")
         return True
@@ -159,7 +159,7 @@ def main():
     print("\n" + "="*50)
     print("🧪 Automation Testing Setup Verification")
     print("="*50 + "\n")
-    
+
     checks = [
         ("Python Version", check_python_version),
         ("Virtual Environment", check_virtual_env),
@@ -170,7 +170,7 @@ def main():
         (".env File", check_env_file),
         ("Pytest Plugins", check_pytest_plugins),
     ]
-    
+
     results = []
     for name, check_func in checks:
         try:
@@ -178,11 +178,11 @@ def main():
         except Exception as e:
             print(f"❌ Error checking {name}: {str(e)}")
             results.append(False)
-    
+
     print("\n" + "="*50)
     passed = sum(results)
     total = len(results)
-    
+
     if all(results):
         print(f"✅ All checks passed! ({passed}/{total})")
         print("\n🚀 You're ready to run tests!")
@@ -193,9 +193,9 @@ def main():
     else:
         print(f"⚠️  Some checks failed. ({passed}/{total})")
         print("\n📋 Please fix the issues above and run this script again.")
-    
+
     print("="*50 + "\n")
-    
+
     return 0 if all(results) else 1
 
 
