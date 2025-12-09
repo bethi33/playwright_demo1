@@ -61,7 +61,6 @@ class TestCompleteShoppingFlow:
         product_page.add_to_cart()
         page.wait_for_load_state("networkidle")
         
-        # Go back to list and add second product
         page.go_back()
         page.wait_for_load_state("networkidle")
         
