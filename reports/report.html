@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">report.html</h1>
+    <p>Report generated on 09-Dec-2025 at 11:32:31 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">66 tests took 16:48:46.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" />
+            <span class="failed">52 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">14 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.13.9&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.26200-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;9.0.2&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;Faker&#34;: &#34;38.2.0&#34;, &#34;base-url&#34;: &#34;2.1.0&#34;, &#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;, &#34;playwright&#34;: &#34;0.7.2&#34;}, &#34;Base URL&#34;: &#34;&#34;}, &#34;tests&#34;: {&#34;tests/test_auth_flow.py::test_valid_login&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_auth_flow.py::test_valid_login&#34;, &#34;duration&#34;: &#34;00:00:17&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_auth_flow.py::test_valid_login&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:17&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:43:56,060 - conftest - INFO - Browser launched\n2025-12-08 18:43:56,114 - conftest - INFO - New browser context created\n2025-12-08 18:43:56,985 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:22 Browser launched\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:44:03,918 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:44:03,920 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:44:04,637 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:44:05,221 - pages.lamdatest_login_page - INFO - Clicking login button\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:44:11,316 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:44:11,344 - conftest - INFO - Page closed\n2025-12-08 18:44:11,385 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_auth_flow.py::test_invalid_login&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_auth_flow.py::test_invalid_login&#34;, &#34;duration&#34;: &#34;00:00:10&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_auth_flow.py::test_invalid_login&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:10&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:44:11,406 - conftest - INFO - New browser context created\n2025-12-08 18:44:11,635 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:44:17,821 - pages.lamdatest_login_page - INFO - Performing login with username: wronguser@example.com\n2025-12-08 18:44:17,822 - pages.lamdatest_login_page - INFO - Entering username: wronguser@example.com\n2025-12-08 18:44:18,381 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:44:18,915 - pages.lamdatest_login_page - INFO - Clicking login button\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: wronguser@example.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: wronguser@example.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:44:20,702 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:44:20,738 - conftest - INFO - Page closed\n2025-12-08 18:44:20,892 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_auth_flow.py::test_user_registration&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_auth_flow.py::test_user_registration&#34;, &#34;duration&#34;: &#34;00:00:51&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_auth_flow.py::test_user_registration&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:51&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.check: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_label(&amp;quot;I have read and agree to the Privacy Policy&amp;quot;)\n        - locator resolved to &amp;lt;input value=&amp;quot;1&amp;quot; name=&amp;quot;agree&amp;quot; type=&amp;quot;checkbox&amp;quot; id=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-input&amp;quot;/&amp;gt;\n      - attempting click action\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n        - retrying click action\n        - waiting 20ms\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n        - retrying click action\n          - waiting 100ms\n        54 \u00d7 waiting for element to be visible, enabled and stable\n           - element is visible, enabled and stable\n           - scrolling into view if needed\n           - done scrolling\n           - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n         - retrying click action\n           - waiting 500ms\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:44:20,984 - conftest - INFO - New browser context created\n2025-12-08 18:44:21,460 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:44:31,541 - pages.lamdatest_home_page - INFO - Navigating to registration page\n2025-12-08 18:44:33,867 - pages.lamdatest_register_page - INFO - Registering user: loganallen@example.org\n2025-12-08 18:44:38,539 - pages.lamdatest_register_page - INFO - Filled first name: Christine\n2025-12-08 18:44:39,105 - pages.lamdatest_register_page - INFO - Filled last name: Wilson\n2025-12-08 18:44:39,679 - pages.lamdatest_register_page - INFO - Filled email: loganallen@example.org\n2025-12-08 18:44:40,254 - pages.lamdatest_register_page - INFO - Filled telephone: 440-419-1952\n2025-12-08 18:44:40,817 - pages.lamdatest_register_page - INFO - Filled password\n2025-12-08 18:44:41,372 - pages.lamdatest_register_page - INFO - Filled password confirmation\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_home_page:lamdatest_home_page.py:19 Navigating to registration page\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:20 Registering user: loganallen@example.org\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:22 Filled first name: Christine\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:24 Filled last name: Wilson\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:26 Filled email: loganallen@example.org\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:28 Filled telephone: 440-419-1952\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:30 Filled password\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:32 Filled password confirmation\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:45:12,301 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:45:12,325 - conftest - INFO - Page closed\n2025-12-08 18:45:12,385 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_flow_guest_user&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_flow_guest_user&#34;, &#34;duration&#34;: &#34;00:00:52&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_flow_guest_user&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:52&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.clear: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_label(&amp;quot;Qty&amp;quot;)\n        - locator resolved to 2 elements. Proceeding with the first one: &amp;lt;input min=&amp;quot;1&amp;quot; step=&amp;quot;1&amp;quot; value=&amp;quot;1&amp;quot; type=&amp;quot;number&amp;quot; name=&amp;quot;quantity&amp;quot; aria-label=&amp;quot;Qty&amp;quot; class=&amp;quot;form-control text-center border-light remove-spin-button&amp;quot;/&amp;gt;\n        - fill(&amp;quot;&amp;quot;)\n      - attempting fill action\n        2 \u00d7 waiting for element to be visible, enabled and editable\n          - element is not visible\n        - retrying fill action\n        - waiting 20ms\n        2 \u00d7 waiting for element to be visible, enabled and editable\n          - element is not visible\n        - retrying fill action\n          - waiting 100ms\n        58 \u00d7 waiting for element to be visible, enabled and editable\n           - element is not visible\n         - retrying fill action\n           - waiting 500ms\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:45:12,406 - conftest - INFO - New browser context created\n2025-12-08 18:45:12,637 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:45:12,641 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:45:18,751 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:45:22,738 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:45:33,491 - pages.product_page - INFO - Product name: iMac\n2025-12-08 18:45:33,491 - pages.product_page - INFO - Setting quantity to: 2\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:34 Product name: iMac\nINFO     pages.product_page:product_page.py:45 Setting quantity to: 2\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:46:04,679 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:46:04,712 - conftest - INFO - Page closed\n2025-12-08 18:46:04,755 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_multiple_products&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_multiple_products&#34;, &#34;duration&#34;: &#34;00:00:49&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_multiple_products&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:49&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_role(&amp;quot;button&amp;quot;, name=&amp;quot;Add to Cart&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:46:04,773 - conftest - INFO - New browser context created\n2025-12-08 18:46:05,019 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:46:05,020 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:46:11,159 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:46:15,679 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:46:23,167 - pages.product_page - INFO - Adding product to cart\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:51 Adding product to cart\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:46:54,091 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:46:54,121 - conftest - INFO - Page closed\n2025-12-08 18:46:54,181 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_quantity_modification&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_quantity_modification&#34;, &#34;duration&#34;: &#34;00:00:51&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_with_quantity_modification&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:51&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.clear: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_label(&amp;quot;Qty&amp;quot;)\n        - locator resolved to 2 elements. Proceeding with the first one: &amp;lt;input min=&amp;quot;1&amp;quot; step=&amp;quot;1&amp;quot; value=&amp;quot;1&amp;quot; type=&amp;quot;number&amp;quot; name=&amp;quot;quantity&amp;quot; aria-label=&amp;quot;Qty&amp;quot; class=&amp;quot;form-control text-center border-light remove-spin-button&amp;quot;/&amp;gt;\n        - fill(&amp;quot;&amp;quot;)\n      - attempting fill action\n        2 \u00d7 waiting for element to be visible, enabled and editable\n          - element is not visible\n        - retrying fill action\n        - waiting 20ms\n        2 \u00d7 waiting for element to be visible, enabled and editable\n          - element is not visible\n        - retrying fill action\n          - waiting 100ms\n        58 \u00d7 waiting for element to be visible, enabled and editable\n           - element is not visible\n         - retrying fill action\n           - waiting 500ms\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:46:54,205 - conftest - INFO - New browser context created\n2025-12-08 18:46:54,542 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:46:54,546 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:47:01,075 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:47:04,717 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:47:14,148 - pages.product_page - INFO - Setting quantity to: 5\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:45 Setting quantity to: 5\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:47:45,241 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:47:45,263 - conftest - INFO - Page closed\n2025-12-08 18:47:45,302 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_add_remove_products&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_add_remove_products&#34;, &#34;duration&#34;: &#34;00:00:51&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCompleteShoppingFlow::test_complete_purchase_add_remove_products&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:51&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_role(&amp;quot;button&amp;quot;, name=&amp;quot;Add to Cart&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:47:45,324 - conftest - INFO - New browser context created\n2025-12-08 18:47:45,554 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:47:45,558 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:47:53,697 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:47:54,522 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:48:05,361 - pages.product_page - INFO - Adding product to cart\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:51 Adding product to cart\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:48:36,269 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:48:36,301 - conftest - INFO - Page closed\n2025-12-08 18:48:36,682 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_user_registration_and_login_flow&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_user_registration_and_login_flow&#34;, &#34;duration&#34;: &#34;00:00:54&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_user_registration_and_login_flow&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:54&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.check: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_label(&amp;quot;I have read and agree to the Privacy Policy&amp;quot;)\n        - locator resolved to &amp;lt;input value=&amp;quot;1&amp;quot; name=&amp;quot;agree&amp;quot; type=&amp;quot;checkbox&amp;quot; id=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-input&amp;quot;/&amp;gt;\n      - attempting click action\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n        - retrying click action\n        - waiting 20ms\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is visible, enabled and stable\n          - scrolling into view if needed\n          - done scrolling\n          - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n        - retrying click action\n          - waiting 100ms\n        54 \u00d7 waiting for element to be visible, enabled and stable\n           - element is visible, enabled and stable\n           - scrolling into view if needed\n           - done scrolling\n           - &amp;lt;label for=&amp;quot;input-agree&amp;quot; class=&amp;quot;custom-control-label&amp;quot;&amp;gt;\u2026&amp;lt;/label&amp;gt; intercepts pointer events\n         - retrying click action\n           - waiting 500ms\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:48:36,738 - conftest - INFO - New browser context created\n2025-12-08 18:48:36,972 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:48:36,978 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:48:46,254 - pages.home_page - INFO - Navigating to registration\n2025-12-08 18:48:55,912 - pages.lamdatest_register_page - INFO - Registering user: batkinson@example.net\n2025-12-08 18:48:56,544 - pages.lamdatest_register_page - INFO - Filled first name: Carmen\n2025-12-08 18:48:57,082 - pages.lamdatest_register_page - INFO - Filled last name: Davis\n2025-12-08 18:48:57,690 - pages.lamdatest_register_page - INFO - Filled email: batkinson@example.net\n2025-12-08 18:48:58,246 - pages.lamdatest_register_page - INFO - Filled telephone: 423-217-2966x4718\n2025-12-08 18:48:58,833 - pages.lamdatest_register_page - INFO - Filled password\n2025-12-08 18:48:59,367 - pages.lamdatest_register_page - INFO - Filled password confirmation\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:57 Navigating to registration\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:20 Registering user: batkinson@example.net\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:22 Filled first name: Carmen\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:24 Filled last name: Davis\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:26 Filled email: batkinson@example.net\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:28 Filled telephone: 423-217-2966x4718\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:30 Filled password\nINFO     pages.lamdatest_register_page:lamdatest_register_page.py:32 Filled password confirmation\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:49:30,221 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:49:30,243 - conftest - INFO - Page closed\n2025-12-08 18:49:30,301 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_login_and_access_account_features&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_login_and_access_account_features&#34;, &#34;duration&#34;: &#34;00:00:14&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestUserAuthenticationFlow::test_login_and_access_account_features&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:14&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:49:30,325 - conftest - INFO - New browser context created\n2025-12-08 18:49:30,565 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:49:36,919 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:49:36,919 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:49:37,507 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:49:38,093 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:49:43,447 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:49:44,443 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:49:44,462 - conftest - INFO - Page closed\n2025-12-08 18:49:44,499 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_search_and_purchase_flow&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_search_and_purchase_flow&#34;, &#34;duration&#34;: &#34;00:00:09&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_search_and_purchase_flow&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:09&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.fill: Error: strict mode violation: get_by_placeholder(&amp;quot;Search&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;input value=&amp;quot;&amp;quot; type=&amp;quot;text&amp;quot; name=&amp;quot;search&amp;quot; autocomplete=&amp;quot;off&amp;quot; data-autocomplete=&amp;quot;5&amp;quot; aria-label=&amp;quot;Search For Products&amp;quot; placeholder=&amp;quot;Search For Products&amp;quot; data-autocomplete_route=&amp;quot;extension/maza/product/product/autocomplete&amp;quot;/&amp;gt; aka get_by_role(&amp;quot;textbox&amp;quot;, name=&amp;quot;Search For Products&amp;quot;)\n        2) &amp;lt;input value=&amp;quot;&amp;quot; type=&amp;quot;text&amp;quot; name=&amp;quot;search&amp;quot; aria-label=&amp;quot;Search For Products&amp;quot; placeholder=&amp;quot;Search For Products&amp;quot;/&amp;gt; aka locator(&amp;quot;#entry_217836&amp;quot;).get_by_placeholder(&amp;quot;Search For Products&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_placeholder(&amp;quot;Search&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:49:44,518 - conftest - INFO - New browser context created\n2025-12-08 18:49:44,757 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:49:44,760 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:49:52,179 - pages.home_page - INFO - Searching for product: Laptop\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:36 Searching for product: Laptop\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:49:53,851 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:49:53,870 - conftest - INFO - Page closed\n2025-12-08 18:49:53,916 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_browse_categories_and_filter_products&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_browse_categories_and_filter_products&#34;, &#34;duration&#34;: &#34;00:00:41&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestProductSearchAndFiltering::test_browse_categories_and_filter_products&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:41&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.select_option: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for locator(&amp;quot;select[name=&amp;#x27;sort&amp;#x27;]&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:49:53,937 - conftest - INFO - New browser context created\n2025-12-08 18:49:54,165 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:49:54,170 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:50:02,363 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:50:04,383 - pages.product_page - INFO - Products displayed: 84\n2025-12-08 18:50:04,383 - pages.product_page - INFO - Sorting products by: name-asc\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:90 Products displayed: 84\nINFO     pages.product_page:product_page.py:100 Sorting products by: name-asc\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:50:35,330 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:50:35,353 - conftest - INFO - Page closed\n2025-12-08 18:50:35,409 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCheckoutProcess::test_checkout_with_address_selection&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCheckoutProcess::test_checkout_with_address_selection&#34;, &#34;duration&#34;: &#34;00:00:45&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCheckoutProcess::test_checkout_with_address_selection&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:45&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Shop&amp;quot;).first\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:50:35,440 - conftest - INFO - New browser context created\n2025-12-08 18:50:35,859 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:50:42,104 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:50:42,105 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:50:42,676 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:50:43,226 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:50:49,263 - pages.home_page - INFO - Navigating to shop\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.home_page:home_page.py:42 Navigating to shop\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:51:20,239 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:51:20,302 - conftest - INFO - Page closed\n2025-12-08 18:51:20,374 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCartOperations::test_cart_persistence_across_pages&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCartOperations::test_cart_persistence_across_pages&#34;, &#34;duration&#34;: &#34;00:00:51&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCartOperations::test_cart_persistence_across_pages&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:51&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for get_by_role(&amp;quot;button&amp;quot;, name=&amp;quot;Add to Cart&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:51:20,424 - conftest - INFO - New browser context created\n2025-12-08 18:51:20,904 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:51:20,907 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:51:28,325 - pages.home_page - INFO - Navigating to shop\n2025-12-08 18:51:30,157 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:51:39,910 - pages.product_page - INFO - Adding product to cart\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:51 Adding product to cart\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:10,815 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:10,841 - conftest - INFO - Page closed\n2025-12-08 18:52:10,895 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_e2e_flows.py::TestCartOperations::test_empty_cart_functionality&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_e2e_flows.py::TestCartOperations::test_empty_cart_functionality&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_e2e_flows.py::TestCartOperations::test_empty_cart_functionality&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:10,920 - conftest - INFO - New browser context created\n2025-12-08 18:52:11,146 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:52:17,449 - pages.checkout_page - INFO - Cart items count: 2\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.checkout_page:checkout_page.py:37 Cart items count: 2\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:17,686 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:17,703 - conftest - INFO - Page closed\n2025-12-08 18:52:17,742 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_login_page_ui&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_login_page_ui&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_login_page_ui&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:17,755 - conftest - INFO - New browser context created\n2025-12-08 18:52:17,945 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:25,036 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:25,053 - conftest - INFO - Page closed\n2025-12-08 18:52:25,092 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_valid_login&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_valid_login&#34;, &#34;duration&#34;: &#34;00:00:11&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_valid_login&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:11&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Locator expected to contain text &amp;#x27;My Account&amp;#x27;\n    Actual value: None\n    Error: strict mode violation: locator(&amp;quot;h2&amp;quot;) resolved to 3 elements:\n        1) &amp;lt;h2 class=&amp;quot;card-header h5&amp;quot;&amp;gt;My Account&amp;lt;/h2&amp;gt; aka get_by_role(&amp;quot;heading&amp;quot;, name=&amp;quot;My Account&amp;quot;)\n        2) &amp;lt;h2 class=&amp;quot;card-header h5&amp;quot;&amp;gt;My Orders&amp;lt;/h2&amp;gt; aka get_by_role(&amp;quot;heading&amp;quot;, name=&amp;quot;My Orders&amp;quot;)\n        3) &amp;lt;h2 class=&amp;quot;card-header h5&amp;quot;&amp;gt;My Affiliate Account&amp;lt;/h2&amp;gt; aka get_by_role(&amp;quot;heading&amp;quot;, name=&amp;quot;My Affiliate Account&amp;quot;)\n     \n    Call log:\n      - Expect &amp;quot;to_contain_text&amp;quot; with timeout 5000ms\n      - waiting for locator(&amp;quot;h2&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:25,108 - conftest - INFO - New browser context created\n2025-12-08 18:52:25,346 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:52:30,874 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:52:30,875 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:52:31,516 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:52:32,080 - pages.lamdatest_login_page - INFO - Clicking login button\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:36,141 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:36,158 - conftest - INFO - Page closed\n2025-12-08 18:52:36,195 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_invalid_password&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_invalid_password&#34;, &#34;duration&#34;: &#34;00:00:11&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_invalid_password&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:11&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:36,212 - conftest - INFO - New browser context created\n2025-12-08 18:52:36,416 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:52:44,394 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:52:44,395 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:52:45,068 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:52:45,597 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:52:47,004 - pages.lamdatest_login_page - INFO - Retrieving alert message\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:32 Retrieving alert message\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:47,473 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:47,491 - conftest - INFO - Page closed\n2025-12-08 18:52:47,532 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_invalid_email&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_invalid_email&#34;, &#34;duration&#34;: &#34;00:00:10&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_invalid_email&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:10&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:47,552 - conftest - INFO - New browser context created\n2025-12-08 18:52:47,775 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:52:53,953 - pages.lamdatest_login_page - INFO - Performing login with username: ssssdjddsd@gmail.com\n2025-12-08 18:52:53,954 - pages.lamdatest_login_page - INFO - Entering username: ssssdjddsd@gmail.com\n2025-12-08 18:52:54,647 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:52:55,218 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:52:56,666 - pages.lamdatest_login_page - INFO - Retrieving alert message\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: ssssdjddsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: ssssdjddsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:32 Retrieving alert message\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:52:56,973 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:52:57,002 - conftest - INFO - Page closed\n2025-12-08 18:52:57,064 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_forgot_password_link_visible&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_forgot_password_link_visible&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_forgot_password_link_visible&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.is_visible: Error: strict mode violation: locator(&amp;quot;a[href*=&amp;#x27;forgotten&amp;#x27;]&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/forgotten&amp;quot;&amp;gt;Forgotten Password&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Forgotten Password&amp;quot;, exact=True)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/forgotten&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf084 Forgotten Password&amp;quot;)\n    \n    Call log:\n        - checking visibility of locator(&amp;quot;a[href*=&amp;#x27;forgotten&amp;#x27;]&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:52:57,097 - conftest - INFO - New browser context created\n2025-12-08 18:52:57,517 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:05,218 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:05,242 - conftest - INFO - Page closed\n2025-12-08 18:53:05,294 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_login_with_empty_credentials&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_login_with_empty_credentials&#34;, &#34;duration&#34;: &#34;00:00:13&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_login_with_empty_credentials&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:13&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Locator expected to be focused\n    Actual value: inactive \n    Call log:\n      - Expect &amp;quot;to_be_focused&amp;quot; with timeout 5000ms\n      - waiting for get_by_role(&amp;quot;textbox&amp;quot;, name=&amp;quot;E-Mail Address&amp;quot;)\n        8 \u00d7 locator resolved to &amp;lt;input value=&amp;quot;&amp;quot; type=&amp;quot;text&amp;quot; name=&amp;quot;email&amp;quot; id=&amp;quot;input-email&amp;quot; class=&amp;quot;form-control&amp;quot; placeholder=&amp;quot;E-Mail Address&amp;quot;/&amp;gt;\n          - unexpected value &amp;quot;inactive&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:05,319 - conftest - INFO - New browser context created\n2025-12-08 18:53:05,624 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:53:11,843 - pages.lamdatest_login_page - INFO - Clicking login button\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:18,574 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:18,608 - conftest - INFO - Page closed\n2025-12-08 18:53:18,702 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_empty_email_and_password&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_empty_email_and_password&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_empty_email_and_password&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:18,757 - conftest - INFO - New browser context created\n2025-12-08 18:53:19,250 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:53:24,649 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:53:25,965 - pages.lamdatest_login_page - INFO - Retrieving alert message\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:32 Retrieving alert message\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:26,227 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:26,258 - conftest - INFO - Page closed\n2025-12-08 18:53:26,314 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_empty_email&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_empty_email&#34;, &#34;duration&#34;: &#34;00:00:09&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_empty_email&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:09&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:26,343 - conftest - INFO - New browser context created\n2025-12-08 18:53:26,670 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:53:32,348 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:53:33,029 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:53:34,781 - pages.lamdatest_login_page - INFO - Retrieving alert message\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:32 Retrieving alert message\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:35,087 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:35,111 - conftest - INFO - Page closed\n2025-12-08 18:53:35,170 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_empty_password&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_empty_password&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_empty_password&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:35,202 - conftest - INFO - New browser context created\n2025-12-08 18:53:35,474 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:53:41,149 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:53:41,746 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:53:43,180 - pages.lamdatest_login_page - INFO - Retrieving alert message\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:32 Retrieving alert message\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:43,435 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:43,462 - conftest - INFO - Page closed\n2025-12-08 18:53:43,504 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_password_masked&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_password_masked&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_password_masked&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:43,524 - conftest - INFO - New browser context created\n2025-12-08 18:53:43,827 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:53:49,326 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:53:49,343 - conftest - INFO - Page closed\n2025-12-08 18:53:49,376 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_login_page.py::test_logout_after_login&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_login_page.py::test_logout_after_login&#34;, &#34;duration&#34;: &#34;00:00:43&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_login_page.py::test_logout_after_login&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:43&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.TimeoutError: Page.click: Timeout 30000ms exceeded.\n    Call log:\n      - waiting for locator(&amp;quot;a[href*=&amp;#x27;logout&amp;#x27;]&amp;quot;)\n        - locator resolved to 2 elements. Proceeding with the first one: &amp;lt;a class=&amp;quot;icon-left both dropdown-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/logout&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt;\n      - attempting click action\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is not visible\n        - retrying click action\n        - waiting 20ms\n        2 \u00d7 waiting for element to be visible, enabled and stable\n          - element is not visible\n        - retrying click action\n          - waiting 100ms\n        50 \u00d7 waiting for element to be visible, enabled and stable\n           - element is not visible\n         - retrying click action\n           - waiting 500ms\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:53:49,395 - conftest - INFO - New browser context created\n2025-12-08 18:53:49,686 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:53:58,257 - pages.lamdatest_login_page - INFO - Performing login with username: sssdjsd@gmail.com\n2025-12-08 18:53:58,257 - pages.lamdatest_login_page - INFO - Entering username: sssdjsd@gmail.com\n2025-12-08 18:53:58,850 - pages.lamdatest_login_page - INFO - Entering password\n2025-12-08 18:53:59,419 - pages.lamdatest_login_page - INFO - Clicking login button\n2025-12-08 18:54:01,108 - pages.lamdatest_login_page - INFO - Clicking logout\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:40 Performing login with username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:15 Entering username: sssdjsd@gmail.com\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:19 Entering password\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:23 Clicking login button\nINFO     pages.lamdatest_login_page:lamdatest_login_page.py:36 Clicking logout\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:54:32,007 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:54:32,042 - conftest - INFO - Page closed\n2025-12-08 18:54:32,124 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestOrderManagement::test_view_order_history&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestOrderManagement::test_view_order_history&#34;, &#34;duration&#34;: &#34;00:00:14&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestOrderManagement::test_view_order_history&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:14&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:54:32,157 - conftest - INFO - New browser context created\n2025-12-08 18:54:32,499 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:54:44,830 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:54:45,692 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:54:45,709 - conftest - INFO - Page closed\n2025-12-08 18:54:45,780 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestOrderManagement::test_get_order_count&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestOrderManagement::test_get_order_count&#34;, &#34;duration&#34;: &#34;00:00:14&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestOrderManagement::test_get_order_count&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:14&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:54:45,815 - conftest - INFO - New browser context created\n2025-12-08 18:54:46,090 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:54:58,542 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:54:59,623 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:54:59,643 - conftest - INFO - Page closed\n2025-12-08 18:54:59,703 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestOrderManagement::test_view_order_details&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestOrderManagement::test_view_order_details&#34;, &#34;duration&#34;: &#34;00:00:16&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestOrderManagement::test_view_order_details&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:16&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:54:59,733 - conftest - INFO - New browser context created\n2025-12-08 18:55:00,050 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:55:14,470 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:55:15,525 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:55:15,542 - conftest - INFO - Page closed\n2025-12-08 18:55:15,579 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestOrderManagement::test_get_order_status&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestOrderManagement::test_get_order_status&#34;, &#34;duration&#34;: &#34;00:00:13&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestOrderManagement::test_get_order_status&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:13&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:55:15,599 - conftest - INFO - New browser context created\n2025-12-08 18:55:15,793 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:55:27,623 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:55:28,609 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:55:28,626 - conftest - INFO - Page closed\n2025-12-08 18:55:28,667 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestOrderManagement::test_get_order_total&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestOrderManagement::test_get_order_total&#34;, &#34;duration&#34;: &#34;00:00:13&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestOrderManagement::test_get_order_total&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:13&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e View your order history&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/order&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf49e Order History&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Order History&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:55:28,684 - conftest - INFO - New browser context created\n2025-12-08 18:55:28,862 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:55:40,674 - pages.account_page - INFO - Going to order history\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:48 Going to order history\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:55:41,696 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:55:41,720 - conftest - INFO - Page closed\n2025-12-08 18:55:41,757 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestWishList::test_view_wish_list&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestWishList::test_view_wish_list&#34;, &#34;duration&#34;: &#34;00:00:13&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestWishList::test_view_wish_list&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:13&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf584 Modify your wish list&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf004 Wish List&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:55:41,781 - conftest - INFO - New browser context created\n2025-12-08 18:55:41,999 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:55:54,137 - pages.account_page - INFO - Going to wish list\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:43 Going to wish list\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:55:55,047 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:55:55,067 - conftest - INFO - Page closed\n2025-12-08 18:55:55,100 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestWishList::test_get_wishlist_items_count&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestWishList::test_get_wishlist_items_count&#34;, &#34;duration&#34;: &#34;00:00:12&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestWishList::test_get_wishlist_items_count&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:12&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf584 Modify your wish list&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf004 Wish List&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:55:55,119 - conftest - INFO - New browser context created\n2025-12-08 18:55:55,326 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:56:05,590 - pages.account_page - INFO - Going to wish list\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:43 Going to wish list\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:56:06,619 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:56:06,637 - conftest - INFO - Page closed\n2025-12-08 18:56:06,675 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestWishList::test_add_wish_list_item_to_cart&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestWishList::test_add_wish_list_item_to_cart&#34;, &#34;duration&#34;: &#34;00:00:34&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestWishList::test_add_wish_list_item_to_cart&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:34&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf584 Modify your wish list&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/wishlist&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf004 Wish List&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Wish List&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:56:06,692 - conftest - INFO - New browser context created\n2025-12-08 18:56:06,959 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:56:16,172 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:56:17,331 - pages.product_page - INFO - Adding product to wishlist\n2025-12-08 18:56:39,343 - pages.account_page - INFO - Going to wish list\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:56 Adding product to wishlist\nINFO     pages.account_page:account_page.py:43 Going to wish list\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:56:40,476 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:56:40,489 - conftest - INFO - Page closed\n2025-12-08 18:56:40,531 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestAddressBook::test_view_address_book&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestAddressBook::test_view_address_book&#34;, &#34;duration&#34;: &#34;00:00:15&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestAddressBook::test_view_address_book&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:15&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2bb Modify your address book&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2b9 Address Book&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:56:40,553 - conftest - INFO - New browser context created\n2025-12-08 18:56:40,855 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:56:54,210 - pages.account_page - INFO - Going to address book\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:38 Going to address book\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:56:55,142 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:56:55,154 - conftest - INFO - Page closed\n2025-12-08 18:56:55,183 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestAddressBook::test_get_saved_addresses_count&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestAddressBook::test_get_saved_addresses_count&#34;, &#34;duration&#34;: &#34;00:00:12&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestAddressBook::test_get_saved_addresses_count&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:12&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2bb Modify your address book&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2b9 Address Book&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:56:55,201 - conftest - INFO - New browser context created\n2025-12-08 18:56:55,391 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:57:06,034 - pages.account_page - INFO - Going to address book\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:38 Going to address book\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:57:06,971 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:57:06,988 - conftest - INFO - Page closed\n2025-12-08 18:57:07,020 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestAddressBook::test_add_new_address&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestAddressBook::test_add_new_address&#34;, &#34;duration&#34;: &#34;00:00:14&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestAddressBook::test_add_new_address&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:14&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Locator.click: Error: strict mode violation: get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;) resolved to 2 elements:\n        1) &amp;lt;a class=&amp;quot;d-inline-flex text-decoration-none text-reset flex-column my-3&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2bb Modify your address book&amp;quot;)\n        2) &amp;lt;a class=&amp;quot;list-group-item&amp;quot; href=&amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/address&amp;quot;&amp;gt;\u2026&amp;lt;/a&amp;gt; aka get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;\uf2b9 Address Book&amp;quot;)\n    \n    Call log:\n      - waiting for get_by_role(&amp;quot;link&amp;quot;, name=&amp;quot;Address Book&amp;quot;)\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:57:07,039 - conftest - INFO - New browser context created\n2025-12-08 18:57:07,230 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:57:19,716 - pages.account_page - INFO - Going to address book\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:38 Going to address book\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:57:21,100 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:57:21,128 - conftest - INFO - Page closed\n2025-12-08 18:57:21,185 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestAccountManagement::test_view_account_page&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestAccountManagement::test_view_account_page&#34;, &#34;duration&#34;: &#34;00:00:18&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestAccountManagement::test_view_account_page&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:18&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Page URL expected to be &amp;#x27;**/account&amp;#x27;\n    Actual value: https://ecommerce-playground.lambdatest.io/index.php?route=account/account \n    Call log:\n      - Expect &amp;quot;to_have_url&amp;quot; with timeout 5000ms\n        9 \u00d7 unexpected value &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/account&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:57:21,222 - conftest - INFO - New browser context created\n2025-12-08 18:57:21,606 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:57:39,208 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:57:39,227 - conftest - INFO - Page closed\n2025-12-08 18:57:39,269 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_orders.py::TestAccountManagement::test_logout_from_account&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_orders.py::TestAccountManagement::test_logout_from_account&#34;, &#34;duration&#34;: &#34;00:00:23&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_orders.py::TestAccountManagement::test_logout_from_account&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:23&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Page URL expected to be &amp;#x27;**/&amp;#x27;\n    Actual value: https://ecommerce-playground.lambdatest.io/index.php?route=account/logout \n    Call log:\n      - Expect &amp;quot;to_have_url&amp;quot; with timeout 5000ms\n        9 \u00d7 unexpected value &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/logout&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:57:39,293 - conftest - INFO - New browser context created\n2025-12-08 18:57:39,572 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:57:52,261 - pages.account_page - INFO - Logging out\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.account_page:account_page.py:53 Logging out\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:58:02,171 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:58:02,200 - conftest - INFO - Page closed\n2025-12-08 18:58:02,231 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_navigate_to_shop&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_navigate_to_shop&#34;, &#34;duration&#34;: &#34;00:00:12&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_navigate_to_shop&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:12&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   AssertionError: Page URL expected to be &amp;#x27;**/shop&amp;#x27;\n    Actual value: https://ecommerce-playground.lambdatest.io/# \n    Call log:\n      - Expect &amp;quot;to_have_url&amp;quot; with timeout 5000ms\n        8 \u00d7 unexpected value &amp;quot;https://ecommerce-playground.lambdatest.io/#&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:58:02,245 - conftest - INFO - New browser context created\n2025-12-08 18:58:02,432 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:58:02,433 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:58:08,121 - pages.home_page - INFO - Navigating to shop\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:42 Navigating to shop\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:58:14,382 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:58:14,405 - conftest - INFO - Page closed\n2025-12-08 18:58:14,439 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_view_featured_products&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_view_featured_products&#34;, &#34;duration&#34;: &#34;00:00:11&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_view_featured_products&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:11&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:58:14,460 - conftest - INFO - New browser context created\n2025-12-08 18:58:14,652 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:58:14,655 - pages.home_page - INFO - Navigating to homepage\n2025-12-08 18:58:24,757 - pages.home_page - INFO - Featured products count: 84\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\nINFO     pages.home_page:home_page.py:70 Featured products count: 84\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:58:25,323 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:58:25,338 - conftest - INFO - Page closed\n2025-12-08 18:58:25,374 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_product_list_displays_correctly&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_product_list_displays_correctly&#34;, &#34;duration&#34;: &#34;00:00:12&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_product_list_displays_correctly&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:12&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:58:25,392 - conftest - INFO - New browser context created\n2025-12-08 18:58:25,563 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:58:36,530 - pages.product_page - INFO - Products displayed: 15\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.product_page:product_page.py:90 Products displayed: 15\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:58:37,135 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:58:37,154 - conftest - INFO - Page closed\n2025-12-08 18:58:37,189 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_click_product_opens_details&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_click_product_opens_details&#34;, &#34;duration&#34;: &#34;00:00:18&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_click_product_opens_details&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:18&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:58:37,212 - conftest - INFO - New browser context created\n2025-12-08 18:58:37,393 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:58:48,438 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:58:54,846 - pages.product_page - INFO - Product name: HTC Touch HD\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:34 Product name: HTC Touch HD\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 18:58:55,251 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 18:58:55,278 - conftest - INFO - Page closed\n2025-12-08 18:58:55,336 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_product_shows_price&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_product_shows_price&#34;, &#34;duration&#34;: &#34;01:59:23&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_product_shows_price&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;01:59:23&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stderr setup -----------------------------\n2025-12-08 18:58:55,364 - conftest - INFO - New browser context created\n2025-12-08 18:58:55,699 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 18:59:06,199 - pages.product_page - INFO - Clicking product at index 0\n2025-12-08 18:59:12,417 - pages.product_page - INFO - Product price: $146.00\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.product_page:product_page.py:95 Clicking product at index 0\nINFO     pages.product_page:product_page.py:40 Product price: $146.00\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 20:58:17,418 - conftest - ERROR - Failed to capture screenshot: Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n\n2025-12-08 20:58:17,958 - conftest - INFO - Page closed\n2025-12-08 20:58:18,014 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nERROR    conftest:conftest.py:62 Failed to capture screenshot: Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_product_shows_stock_status&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_product_shows_stock_status&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_product_shows_stock_status&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 20:58:18,049 - conftest - INFO - New browser context created\n2025-12-08 20:58:18,592 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 20:58:19,424 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 20:58:19,443 - conftest - INFO - Page closed\n2025-12-08 20:58:19,490 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductBrowsing::test_sort_products_by_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductBrowsing::test_sort_products_by_name&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductBrowsing::test_sort_products_by_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 20:58:19,511 - conftest - INFO - New browser context created\n2025-12-08 20:58:20,113 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-08 20:58:20,935 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-08 20:58:20,954 - conftest - INFO - Page closed\n2025-12-08 20:58:21,004 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductSearch::test_search_product_by_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductSearch::test_search_product_by_name&#34;, &#34;duration&#34;: &#34;14:33:23&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductSearch::test_search_product_by_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;14:33:23&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://ecommerce-playground.lambdatest.io/\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-08 20:58:21,029 - conftest - INFO - New browser context created\n2025-12-08 20:58:21,669 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-08 20:58:21,672 - pages.home_page - INFO - Navigating to homepage\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:34,514 - conftest - ERROR - Failed to capture screenshot: Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n\n2025-12-09 11:31:34,788 - conftest - INFO - Page closed\n2025-12-09 11:31:35,034 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nERROR    conftest:conftest.py:62 Failed to capture screenshot: Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductSearch::test_search_nonexistent_product&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductSearch::test_search_nonexistent_product&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductSearch::test_search_nonexistent_product&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:35,257 - conftest - INFO - New browser context created\n2025-12-09 11:31:37,436 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-09 11:31:37,442 - pages.home_page - INFO - Navigating to homepage\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:38,351 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:31:38,400 - conftest - INFO - Page closed\n2025-12-09 11:31:38,463 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductSearch::test_search_with_special_characters&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductSearch::test_search_with_special_characters&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductSearch::test_search_with_special_characters&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:38,498 - conftest - INFO - New browser context created\n2025-12-09 11:31:38,743 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n\n----------------------------- Captured stderr call -----------------------------\n2025-12-09 11:31:38,757 - pages.home_page - INFO - Navigating to homepage\n\n------------------------------ Captured log call -------------------------------\nINFO     pages.home_page:home_page.py:31 Navigating to homepage\n\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:39,611 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:31:39,743 - conftest - INFO - Page closed\n2025-12-09 11:31:39,802 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductFiltering::test_filter_by_price_range&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductFiltering::test_filter_by_price_range&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductFiltering::test_filter_by_price_range&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:39,836 - conftest - INFO - New browser context created\n2025-12-09 11:31:40,242 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:41,101 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:31:41,124 - conftest - INFO - Page closed\n2025-12-09 11:31:41,221 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductFiltering::test_change_products_per_page&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductFiltering::test_change_products_per_page&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductFiltering::test_change_products_per_page&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_NETWORK_CHANGED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:41,276 - conftest - INFO - New browser context created\n2025-12-09 11:31:42,010 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:44,325 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:31:44,350 - conftest - INFO - Page closed\n2025-12-09 11:31:44,422 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductFiltering::test_sort_products_by_price&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductFiltering::test_sort_products_by_price&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductFiltering::test_sort_products_by_price&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:44,461 - conftest - INFO - New browser context created\n2025-12-09 11:31:44,816 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:48,918 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductDetails::test_view_product_images&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductDetails::test_view_product_images&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductDetails::test_view_product_images&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:48,937 - conftest - INFO - New browser context created\n2025-12-09 11:31:49,104 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:57,275 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductDetails::test_get_product_description&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductDetails::test_get_product_description&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductDetails::test_get_product_description&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:57,291 - conftest - INFO - New browser context created\n2025-12-09 11:31:57,487 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:31:59,724 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_products.py::TestProductDetails::test_product_quantity_adjustment&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_products.py::TestProductDetails::test_product_quantity_adjustment&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_products.py::TestProductDetails::test_product_quantity_adjustment&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:31:59,736 - conftest - INFO - New browser context created\n2025-12-09 11:31:59,940 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:02,206 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_add_product_to_cart&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_add_product_to_cart&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_add_product_to_cart&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:02,226 - conftest - INFO - New browser context created\n2025-12-09 11:32:02,424 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:04,859 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_add_multiple_products_to_cart&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_add_multiple_products_to_cart&#34;, &#34;duration&#34;: &#34;00:00:02&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_add_multiple_products_to_cart&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:02&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:04,871 - conftest - INFO - New browser context created\n2025-12-09 11:32:05,077 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:07,157 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_view_cart&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_view_cart&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_view_cart&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:07,177 - conftest - INFO - New browser context created\n2025-12-09 11:32:07,377 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:14,516 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:14,537 - conftest - INFO - Page closed\n2025-12-09 11:32:14,825 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_update_cart_quantity&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_update_cart_quantity&#34;, &#34;duration&#34;: &#34;938 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_update_cart_quantity&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;938 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:14,842 - conftest - INFO - New browser context created\n2025-12-09 11:32:15,007 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:15,694 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:15,719 - conftest - INFO - Page closed\n2025-12-09 11:32:15,767 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_remove_product_from_cart&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_remove_product_from_cart&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_remove_product_from_cart&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:15,784 - conftest - INFO - New browser context created\n2025-12-09 11:32:16,010 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:16,776 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:16,806 - conftest - INFO - Page closed\n2025-12-09 11:32:16,863 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_cart_displays_total&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_cart_displays_total&#34;, &#34;duration&#34;: &#34;939 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_cart_displays_total&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;939 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:16,887 - conftest - INFO - New browser context created\n2025-12-09 11:32:17,034 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:17,732 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:17,756 - conftest - INFO - Page closed\n2025-12-09 11:32:17,807 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_add_to_wishlist&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_add_to_wishlist&#34;, &#34;duration&#34;: &#34;901 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_add_to_wishlist&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;901 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:17,825 - conftest - INFO - New browser context created\n2025-12-09 11:32:17,990 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:18,659 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:18,678 - conftest - INFO - Page closed\n2025-12-09 11:32:18,711 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestShoppingCart::test_apply_coupon_code&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestShoppingCart::test_apply_coupon_code&#34;, &#34;duration&#34;: &#34;880 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestShoppingCart::test_apply_coupon_code&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;880 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=product/category&amp;amp;path=20&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:18,729 - conftest - INFO - New browser context created\n2025-12-09 11:32:18,884 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:19,545 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:19,560 - conftest - INFO - Page closed\n2025-12-09 11:32:19,594 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestCheckout::test_checkout_page_loads&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestCheckout::test_checkout_page_loads&#34;, &#34;duration&#34;: &#34;00:00:01&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestCheckout::test_checkout_page_loads&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:01&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_INTERNET_DISCONNECTED at https://ecommerce-playground.lambdatest.io/index.php?route=account/login\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/login&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:19,611 - conftest - INFO - New browser context created\n2025-12-09 11:32:19,756 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:20,571 - conftest - INFO - Screenshot saved: reports\\screenshots\\unknown.png\n2025-12-09 11:32:20,604 - conftest - INFO - Page closed\n2025-12-09 11:32:20,809 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:60 Screenshot saved: reports\\screenshots\\unknown.png\nINFO     conftest:conftest.py:65 Page closed\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestCheckout::test_fill_billing_address&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestCheckout::test_fill_billing_address&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestCheckout::test_fill_billing_address&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/login&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:20,843 - conftest - INFO - New browser context created\n2025-12-09 11:32:21,117 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:24,444 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestCheckout::test_select_shipping_method&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestCheckout::test_select_shipping_method&#34;, &#34;duration&#34;: &#34;00:00:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestCheckout::test_select_shipping_method&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/login&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:24,470 - conftest - INFO - New browser context created\n2025-12-09 11:32:24,674 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:27,605 - conftest - INFO - Browser context closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed&#34;}], &#34;tests/test_shopping.py::TestCheckout::test_select_payment_method&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Failed&#34;, &#34;testId&#34;: &#34;tests/test_shopping.py::TestCheckout::test_select_payment_method&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Failed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_shopping.py::TestCheckout::test_select_payment_method&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;E   playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED; maybe frame was detached?\n    Call log:\n      - navigating to &amp;quot;https://ecommerce-playground.lambdatest.io/index.php?route=account/login&amp;quot;, waiting until &amp;quot;load&amp;quot;\n\n---------------------------- Captured stderr setup -----------------------------\n2025-12-09 11:32:27,619 - conftest - INFO - New browser context created\n2025-12-09 11:32:27,806 - conftest - INFO - New page created\n\n------------------------------ Captured log setup ------------------------------\nINFO     conftest:conftest.py:31 New browser context created\nINFO     conftest:conftest.py:45 New page created\n--------------------------- Captured stderr teardown ---------------------------\n2025-12-09 11:32:30,503 - conftest - INFO - Browser context closed\n2025-12-09 11:32:31,144 - conftest - INFO - Browser closed\n\n---------------------------- Captured log teardown -----------------------------\nINFO     conftest:conftest.py:34 Browser context closed\nINFO     conftest:conftest.py:25 Browser closed&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>
