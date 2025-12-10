@@ -1,4 +1,3 @@
-"""Utils package for test automation"""
 from .helpers import (
     wait_for_element_visible,
     wait_for_element_hidden,

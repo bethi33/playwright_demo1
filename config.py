@@ -1,4 +1,3 @@
-"""Test configuration and constants for automation testing"""
 import os
 from dotenv import load_dotenv
 

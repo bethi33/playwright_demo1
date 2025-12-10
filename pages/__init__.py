@@ -1,4 +1,3 @@
-"""Page objects package for test automation"""
 from .lamdatest_login_page import LoginPage
 from .lamdatest_register_page import RegisterPage
 from .home_page import HomePage

@@ -1,4 +1,3 @@
-"""User Account and Order Page Objects"""
 from playwright.sync_api import Page
 import logging
 
@@ -6,7 +5,6 @@ logger = logging.getLogger(__name__)
 
 
 class AccountPage:
-    """User account dashboard page"""
 
     def __init__(self, page: Page):
         self.page = page
@@ -24,38 +22,31 @@ class AccountPage:
         self.account_email = page.locator(".account-email").first
 
     def edit_account(self):
-        """Go to edit account page"""
         logger.info("Going to edit account")
         self.edit_account_link.click()
 
     def change_password(self):
-        """Go to change password page"""
         logger.info("Going to change password")
         self.change_password_link.click()
 
     def view_address_book(self):
-        """Go to address book"""
         logger.info("Going to address book")
         self.address_book_link.click()
 
     def view_wish_list(self):
-        """Go to wish list"""
         logger.info("Going to wish list")
         self.wish_list_link.click()
 
     def view_order_history(self):
-        """Go to order history"""
         logger.info("Going to order history")
         self.order_history_link.click()
 
     def logout(self):
-        """Logout from account"""
         logger.info("Logging out")
         self.logout_link.click()
 
 
 class OrderHistoryPage:
-    """Order history and details page"""
 
     def __init__(self, page: Page):
         self.page = page
@@ -81,47 +72,39 @@ class OrderHistoryPage:
         self.download_invoice_button = page.get_by_role("button", name="Download Invoice")
 
     def get_orders_count(self) -> int:
-        """Get number of orders"""
         count = self.orders_table.count()
         logger.info(f"Orders count: {count}")
         return count
 
     def click_order(self, order_index: int):
-        """Click on an order"""
         logger.info(f"Clicking order at index {order_index}")
         self.order_ids.nth(order_index).click()
 
     def get_order_status(self, order_index: int) -> str:
-        """Get status of an order"""
         status = self.order_statuses.nth(order_index).inner_text()
         logger.info(f"Order status: {status}")
         return status
 
     def get_order_total(self, order_index: int) -> str:
-        """Get total of an order"""
         total = self.order_totals.nth(order_index).inner_text()
         logger.info(f"Order total: {total}")
         return total
 
     def reorder_product(self):
-        """Reorder product from order history"""
         logger.info("Reordering product")
         self.reorder_button.click()
 
     def download_invoice(self):
-        """Download invoice"""
         logger.info("Downloading invoice")
         self.download_invoice_button.click()
 
     def get_order_items_count(self) -> int:
-        """Get number of items in current order"""
         count = self.order_items.count()
         logger.info(f"Order items count: {count}")
         return count
 
 
 class WishListPage:
-    """Wish list page"""
 
     def __init__(self, page: Page):
         self.page = page
@@ -132,24 +115,20 @@ class WishListPage:
         self.remove_buttons = page.locator("button[title='Remove']")
 
     def get_wishlist_items_count(self) -> int:
-        """Get number of items in wish list"""
         count = self.wishlist_items.count()
         logger.info(f"Wish list items count: {count}")
         return count
 
     def add_item_to_cart(self, item_index: int):
-        """Add wish list item to cart"""
         logger.info(f"Adding wish list item {item_index} to cart")
         self.add_to_cart_buttons.nth(item_index).click()
 
     def remove_item(self, item_index: int):
-        """Remove item from wish list"""
         logger.info(f"Removing wish list item {item_index}")
         self.remove_buttons.nth(item_index).click()
 
 
 class AddressBookPage:
-    """Address book page"""
 
     def __init__(self, page: Page):
         self.page = page
@@ -169,13 +148,11 @@ class AddressBookPage:
         self.save_button = page.get_by_role("button", name="Save")
 
     def get_addresses_count(self) -> int:
-        """Get number of saved addresses"""
         count = self.addresses.count()
         logger.info(f"Addresses count: {count}")
         return count
 
     def add_new_address(self, first_name: str, last_name: str, address: str, city: str, postcode: str):
-        """Add new address"""
         logger.info(f"Adding new address for {first_name} {last_name}")
         self.add_address_button.click()
         self.firstname.fill(first_name)
@@ -186,11 +163,9 @@ class AddressBookPage:
         self.save_button.click()
 
     def edit_address(self, address_index: int):
-        """Edit address"""
         logger.info(f"Editing address at index {address_index}")
         self.edit_buttons.nth(address_index).click()
 
     def delete_address(self, address_index: int):
-        """Delete address"""
         logger.info(f"Deleting address at index {address_index}")
         self.delete_buttons.nth(address_index).click()

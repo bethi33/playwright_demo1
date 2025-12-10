@@ -13,7 +13,6 @@ CATEGORY_PATH = f"{BASE_URL}/index.php?route=product/category&path=20"
 class TestOrderManagement:
 
     def test_view_order_history(self, page: Page, login_credentials):
-        """Test viewing order history"""
         page.goto(LOGIN_PATH)
 
 
@@ -31,7 +30,6 @@ class TestOrderManagement:
         expect(page).to_have_url("**/order")
 
     def test_get_order_count(self, page: Page, login_credentials):
-        """Test getting order count from order history"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -51,7 +49,6 @@ class TestOrderManagement:
         assert orders_count >= 0, "Orders count should be non-negative"
 
     def test_view_order_details(self, page: Page, login_credentials):
-        """Test viewing details of an order"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -78,7 +75,6 @@ class TestOrderManagement:
             assert order_number.is_visible(), "Order number not displayed"
 
     def test_get_order_status(self, page: Page, login_credentials):
-        """Test getting order status"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -101,7 +97,6 @@ class TestOrderManagement:
             assert status and len(status) > 0, "Order status not available"
 
     def test_get_order_total(self, page: Page, login_credentials):
-        """Test getting order total"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -127,7 +122,6 @@ class TestOrderManagement:
 class TestWishList:
 
     def test_view_wish_list(self, page: Page, login_credentials):
-        """Test viewing wish list"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -144,7 +138,6 @@ class TestWishList:
         expect(page).to_have_url("**/wishlist")
 
     def test_get_wishlist_items_count(self, page: Page, login_credentials):
-        """Test getting wish list items count"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -164,7 +157,6 @@ class TestWishList:
         assert items_count >= 0, "Wish list items count should be non-negative"
 
     def test_add_wish_list_item_to_cart(self, page: Page, login_credentials):
-        """Test adding wish list item to cart"""
 
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=product/category&path=20")
 
@@ -203,7 +195,6 @@ class TestWishList:
 class TestAddressBook:
 
     def test_view_address_book(self, page: Page, login_credentials):
-        """Test viewing address book"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -220,7 +211,6 @@ class TestAddressBook:
         expect(page).to_have_url("**/address")
 
     def test_get_saved_addresses_count(self, page: Page, login_credentials):
-        """Test getting count of saved addresses"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -240,7 +230,6 @@ class TestAddressBook:
         assert addresses_count >= 0, "Addresses count should be non-negative"
 
     def test_add_new_address(self, page: Page, login_credentials):
-        """Test adding a new address"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -275,7 +264,6 @@ class TestAddressBook:
 class TestAccountManagement:
 
     def test_view_account_page(self, page: Page, login_credentials):
-        """Test viewing account page"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -287,7 +275,6 @@ class TestAccountManagement:
         expect(page).to_have_url("**/account")
 
     def test_logout_from_account(self, page: Page, login_credentials):
-        """Test logging out from account"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 

@@ -29,40 +29,33 @@ class HomePage:
         self.page.goto("https://ecommerce-playground.lambdatest.io/")
 
     def search_product(self, product_name: str):
-        """Search for a product"""
         logger.info(f"Searching for product: {product_name}")
         self.search_input.fill(product_name)
         self.search_button.click()
 
     def navigate_to_shop(self):
-        """Navigate to shop page"""
         logger.info("Navigating to shop")
         self.shop_button.click()
 
     def navigate_to_cart(self):
-        """Navigate to shopping cart"""
         logger.info("Navigating to cart")
         self.cart_link.click()
 
     def open_my_account_menu(self):
-        """Open my account dropdown menu"""
         logger.info("Opening my account menu")
         self.my_account_dropdown.hover()
 
     def navigate_to_registration(self):
-        """Navigate to registration page"""
         logger.info("Navigating to registration")
         self.my_account_dropdown.hover()
         self.register_link.click()
 
     def navigate_to_login(self):
-        """Navigate to login page"""
         logger.info("Navigating to login")
         self.my_account_dropdown.hover()
         self.login_link.click()
 
     def get_featured_products_count(self):
-        """Get count of featured products"""
         count = self.featured_products.count()
         logger.info(f"Featured products count: {count}")
         return count

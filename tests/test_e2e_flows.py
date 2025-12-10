@@ -14,7 +14,6 @@ CART_PATH = f"{BASE_URL}/index.php?route=checkout/cart"
 class TestCompleteShoppingFlow:
 
     def test_complete_purchase_flow_guest_user(self, page: Page):
-        """Test complete purchase flow as guest user"""
         home_page = HomePage(page)
         home_page.navigate_to_home()
 
@@ -45,7 +44,6 @@ class TestCompleteShoppingFlow:
         assert total and len(total) > 0, "Total should be displayed"
 
     def test_complete_purchase_with_multiple_products(self, page: Page):
-        """Test purchasing multiple different products"""
         home_page = HomePage(page)
         home_page.navigate_to_home()
         home_page.navigate_to_shop()
@@ -79,7 +77,6 @@ class TestCompleteShoppingFlow:
         assert items_count >= 2, "Should have at least 2 products"
 
     def test_complete_purchase_with_quantity_modification(self, page: Page):
-        """Test modifying quantities during shopping"""
         home_page = HomePage(page)
         home_page.navigate_to_home()
         home_page.navigate_to_shop()
@@ -107,7 +104,6 @@ class TestCompleteShoppingFlow:
         assert quantity == "10", "Quantity should be updated to 10"
 
     def test_complete_purchase_add_remove_products(self, page: Page):
-        """Test adding and removing products from cart"""
         home_page = HomePage(page)
         home_page.navigate_to_home()
         home_page.navigate_to_shop()
@@ -150,7 +146,6 @@ class TestCompleteShoppingFlow:
 
 
 class TestUserAuthenticationFlow:
-    """Test user authentication and account access"""
 
     def test_user_registration_and_login_flow(self, page: Page):
         """Test complete registration and login flow"""
@@ -180,7 +175,6 @@ class TestUserAuthenticationFlow:
         expect(page).to_have_url("**/account")
 
     def test_login_and_access_account_features(self, page: Page, login_credentials):
-        """Test login and accessing all account features"""
         page.goto("https://ecommerce-playground.lambdatest.io/index.php?route=account/login")
 
 
@@ -211,7 +205,6 @@ class TestUserAuthenticationFlow:
 
 
 class TestProductSearchAndFiltering:
-    """Test comprehensive product search and filtering"""
 
     def test_search_and_purchase_flow(self, page: Page):
         """Test searching for product and purchasing it"""
@@ -246,7 +239,6 @@ class TestProductSearchAndFiltering:
         assert items_count > 0, "Product should be in cart"
 
     def test_browse_categories_and_filter_products(self, page: Page):
-        """Test browsing product categories and filtering"""
         home_page = HomePage(page)
         home_page.navigate_to_home()
         home_page.navigate_to_shop()
@@ -266,7 +258,6 @@ class TestProductSearchAndFiltering:
 
 
 class TestCheckoutProcess:
-    """Test detailed checkout process"""
 
     def test_checkout_with_address_selection(self, page: Page, login_credentials):
         """Test checkout process with address selection"""
@@ -302,7 +293,6 @@ class TestCheckoutProcess:
 
 
 class TestCartOperations:
-    """Test various cart operations"""
 
     def test_cart_persistence_across_pages(self, page: Page):
         """Test cart items persist when browsing other pages"""
@@ -337,7 +327,6 @@ class TestCartOperations:
         assert items_count >= 1, "Added product should still be in cart"
 
     def test_empty_cart_functionality(self, page: Page):
-        """Test cart is empty on fresh visit"""
         page.goto(CART_PATH)
         page.wait_for_load_state("networkidle")
 

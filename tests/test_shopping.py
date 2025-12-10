@@ -10,7 +10,6 @@ LOGIN_PATH = f"{BASE_URL}/index.php?route=account/login"
 class TestShoppingCart:
 
     def test_add_product_to_cart(self, page: Page):
-        """Test adding a product to cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -23,7 +22,6 @@ class TestShoppingCart:
         expect(page.locator(".alert-success")).to_be_visible()
 
     def test_add_multiple_products_to_cart(self, page: Page):
-        """Test adding multiple products to cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -42,7 +40,6 @@ class TestShoppingCart:
         expect(page.locator(".alert-success")).to_be_visible()
 
     def test_view_cart(self, page: Page):
-        """Test viewing shopping cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -60,7 +57,6 @@ class TestShoppingCart:
         assert items_count > 0, "Cart should have items"
 
     def test_update_cart_quantity(self, page: Page):
-        """Test updating item quantity in cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -81,7 +77,6 @@ class TestShoppingCart:
         assert quantity == "3", "Quantity not updated"
 
     def test_remove_product_from_cart(self, page: Page):
-        """Test removing product from cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -104,7 +99,6 @@ class TestShoppingCart:
         assert final_count < initial_count, "Item not removed from cart"
 
     def test_cart_displays_total(self, page: Page):
-        """Test cart displays total amount"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -122,7 +116,6 @@ class TestShoppingCart:
         assert total and len(total) > 0, "Total not displayed"
 
     def test_add_to_wishlist(self, page: Page):
-        """Test adding product to wishlist"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -135,7 +128,6 @@ class TestShoppingCart:
         expect(page.locator(".alert-success")).to_be_visible()
 
     def test_apply_coupon_code(self, page: Page, login_credentials):
-        """Test applying coupon code to cart"""
         page.goto(CATEGORY_PATH)
 
         product_list = ProductListPage(page)
@@ -160,7 +152,6 @@ class TestShoppingCart:
 class TestCheckout:
 
     def test_checkout_page_loads(self, page: Page, login_credentials):
-        """Test checkout page loads correctly"""
         page.goto(LOGIN_PATH)
 
 
@@ -191,7 +182,6 @@ class TestCheckout:
         expect(page).to_have_url("**/checkout")
 
     def test_fill_billing_address(self, page: Page, login_credentials):
-        """Test filling billing address during checkout"""
         page.goto(LOGIN_PATH)
 
 
@@ -230,7 +220,6 @@ class TestCheckout:
         )
 
     def test_select_shipping_method(self, page: Page, login_credentials):
-        """Test selecting shipping method"""
         page.goto(LOGIN_PATH)
 
 
@@ -263,7 +252,6 @@ class TestCheckout:
             checkout_page.select_shipping_method(0)
 
     def test_select_payment_method(self, page: Page, login_credentials):
-        """Test selecting payment method"""
         page.goto(LOGIN_PATH)
 
 

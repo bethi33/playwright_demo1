@@ -49,7 +49,6 @@ def test_invalid_email(page: Page):
 
 
 def test_forgot_password_link_visible(page: Page):
-    """Test forgot password link is visible on login page"""
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
 
@@ -57,7 +56,6 @@ def test_forgot_password_link_visible(page: Page):
 
 
 def test_login_with_empty_credentials(page: Page):
-    """Test login with empty email and password"""
     login_page = LoginPage(page)
     page.goto(LOGIN_URL)
 
